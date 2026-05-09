@@ -21,15 +21,8 @@ double extractNumeric(const string& str) {
     for (int i = 0; i < str.length(); i++) {
         int idx = i;
 
-if (!(isdigit(str[i]) ||
-     ((str[i] == '+' || str[i] == '-') &&
-      i + 1 < n &&
-      (isdigit(str[i + 1]) || str[i + 1] == '.')) ||
-     (str[i] == '.' &&
-      i + 1 < n &&
-      isdigit(str[i + 1]))))
-{
-    continue;
+        if (isdigit(str[i]) || ((str[i] == '+' || str[i] == '-') && i + 1 < n && (isdigit(str[i + 1]) || str[i + 1] == '.')) || (str[i] == '.' && i + 1 < n && isdigit(str[i + 1]))) { //checks if index is a digit or possible unary operator
+            continue;
         }
 
         int start = idx;
@@ -50,39 +43,53 @@ if (!(isdigit(str[i]) ||
         int pos = start;
         int exponent = 0;
 
-       if (pos < n && (str[pos] == 'e' || str[pos] == 'E'))
-{
-    pos++;
+        while (pos < n && isdigit(str[pos])) {
+            hasDigit = true;
+            value = value * 10 + (str[pos] - '0');
+            pos++;
+        }
 
-    int expSign = 1;
-    if (pos < n && str[pos] == '-')
-    {
-        expSign = -1;
-        pos++;
-    }
-    else if (pos < n && str[pos] == '+')
-    {
-        pos++;
-    }
+        if (pos < n && str[pos] == '.') {
+            hasDecimal = true;
+            pos++;
 
-    if (pos >= n || !isdigit(str[pos]))
-        return INVALID;
+            double place = 0.1;
 
-    int exponent = 0;
+            while (pos < n && isdigit(str[pos])) {
+                hasDigit = true;
+                value += (str[pos] - '0') * place;
+                place /= 10;
+                pos++;
+            }
 
-    while (pos < n && isdigit(str[pos]))
-    {
-        exponent = exponent * 10 + (str[pos] - '0');
-        pos++;
-    }
+            if (!hasDigit) continue;
 
-    exponent *= expSign;
+            if (pos < n && (str[pos] == 'e' || str[pos] == 'E')) {
+                if (!hasDigit || hasExponent) continue;
+            }
 
-    if (abs(exponent) > 308)
-        return INVALID;
+            hasExponent = true;
+            pos++;
 
-    value *= pow(10.0, exponent);
-}
+            int expSign = 1;
+
+            if (str[pos] == '-'){
+                expSign = -1;
+                pos++;
+            }
+            else if (str[pos] == '+') pos++;
+
+            if (pos >= n || !isdigit(str[pos])) {
+                exponent = exponent * 10 + (str[pos] - '0');
+                pos++;
+            }
+
+            exponent *= expSign;
+
+            if (exponent > abs(308)) return INVALID;
+
+            value *= pow(10.0, exponent);
+        }
 
         return sign * value;
     }
