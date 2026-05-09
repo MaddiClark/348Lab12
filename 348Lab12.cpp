@@ -13,6 +13,8 @@
 
 using namespace std;
 
+const double INVALID = -999999.99;
+
 double extractNumeric(const string& str) {
     int n = str.length(); //assigns string length a variable for later use
 
@@ -21,6 +23,7 @@ double extractNumeric(const string& str) {
             if ((str[i] == '+' || str[i] == '-')) {
                 if (i + 1 >= n){ //checks if a sign is at the end of the string
                     continue;
+                }
 
                 if (!isdigit(str[i + 1]) && str[i + 1] != '.') { //checks if the sign is followed by a non-digit that isnt a decimal point
                     continue;
@@ -33,7 +36,7 @@ double extractNumeric(const string& str) {
                 j++; //increments j for as long as it is less than the length of the string and is a possible piece of a number
             }
 
-            string token == str.substr(i, j-i); //creates a substring for as long as the potential number is
+            string token = str.substr(i, j-i); //creates a substring for as long as the potential number is
 
             int pos = 0;
 
@@ -58,8 +61,8 @@ double extractNumeric(const string& str) {
                 else if (c == '.') {
                     if (hasDecimal || hasExponent) return INVALID; //a number cannot have two decimals or have an exponent before the decimal
 
-                    hasDecimal == true; //marks that the substring has a decimal and increments position
-                    pos++
+                    hasDecimal = true; //marks that the substring has a decimal and increments position
+                    pos++;
                 }
 
                 else if (c == 'e' || c == 'E') {
@@ -76,7 +79,7 @@ double extractNumeric(const string& str) {
 
                     while (pos < token.length() && isdigit(token[pos])) {
                         expDigits++;
-                        pos++
+                        pos++;
                     }
 
                     if (expDigits == 0) return INVALID; //Cannot take the exponent of nothing
@@ -97,14 +100,14 @@ double extractNumeric(const string& str) {
 
             if (token[index] == '-') {
                 sign = -1;
-                idx++;
+                index++;
             }
             else if (token[index] == '+') {
                 index++;
             }
 
             while (index < token.length() && isdigit(token[index])) {
-                value = value * 10 + (token[index - '0']);
+                value = value * 10 + (token[index] - '0');
                 index++;
             }
 
@@ -135,14 +138,14 @@ double extractNumeric(const string& str) {
 
                 int exponent = 0;
 
-                while (index < token.length() && isdigit(token)[index]) {
+                while (index < token.length() && isdigit(token[index])) {
                     exponent = exponent * 10 + (token[index] - '0');
                     index++;
                 }
 
                 exponent *= expSign;
 
-                if (exponent > 308 || exponent > -308) return INVALID;
+                if (exponent > 308 || exponent < -308) return INVALID;
 
                 value *= pow(10.0, exponent);
             }
@@ -150,13 +153,15 @@ double extractNumeric(const string& str) {
             return sign * value;
         }
     }
+
+    return INVALID;
 }
 
-void main() {
+int main() {
     string input;
 
     cout << "Enter string to extract number from: " << endl;
-    getline(cin, input)
+    getline(cin, input);
 
     double result = extractNumeric(input);
 
@@ -164,6 +169,6 @@ void main() {
         cout << "Invalid number" << endl;
     }
     else {
-        cout << "Extracted value" << result << endl;
+        cout << "Extracted value: " << result << endl;
     }
 }
