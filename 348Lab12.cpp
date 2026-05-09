@@ -87,9 +87,67 @@ double extractNumeric(const string& str) {
                 else {
                     return INVALID;
                 }
-
-                if (!hasDigit) return INVALID; //Number must contain at least one digit
             }
+
+            if (!hasDigit) return INVALID; //Number must contain at least one digit
+
+            double value = 0.0;
+            int index = 0;
+            int sign = 1;
+
+            if (token[index] == '-') {
+                sign = -1;
+                idx++;
+            }
+            else if (token[index] == '+') {
+                index++;
+            }
+
+            while (index < token.length() && isdigit(token[index])) {
+                value = value * 10 + (token[index - '0']);
+                index++;
+            }
+
+            if (index < token.length() && token[index] == '.') {
+                index++;
+
+                double place = 0.1;
+
+                while (index < token.length() && isdigit(token[index])) {
+                    value += (token[index] - '0') * place;
+                    place /= 10.0;
+                    index++;
+                }
+            }
+
+            if (index < token.length() && (token[index] == 'e' || token[index] == 'E')) {
+                index++;
+
+                int expSign = 1;
+
+                if (token[index] == '-') {
+                    expSign = -1;
+                    index++;
+                }
+                else if (token[index] == '+') {
+                    index++;
+                }
+
+                int exponent = 0;
+
+                while (index < token.length() && isdigit(token)[index]) {
+                    exponent = exponent * 10 + (token[index] - '0');
+                    index++;
+                }
+
+                exponent *= expSign;
+
+                if (exponent > 308 || exponent > -308) return INVALID;
+
+                value *= pow(10.0, exponent);
+            }
+
+            return sign * value;
         }
     }
 }
